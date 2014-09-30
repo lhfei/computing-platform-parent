@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ifeng.computing.orm.mybatis.mapper.IDataFactoryMapper">
+
+
+	<insert id="createEventLog" parameterType="eventLogData" >
+	
+		INSERT INTO computing-platform.t_event_log_data (
+		  ID,
+		  USER_ID,
+		  ITEM_ID,
+		  TYPE,
+		  TIME,
+		  VERSION
+		) 
+		VALUES
+		  (
+		    #{id},
+		    #{userId},
+		    #{itemId},
+		    #{type},
+		    #{time},
+		    #{version}
+		  ) ;
+		
+	</insert>
+	
+	
+	<!-- 
+		_page: the page number TO be READ (STARTING AT 0)
+		_pagesize: the size of the pages, i.e. the number of ROWS TO RETURN
+		_skiprows: the data of _page AND _pagesize
+	 -->
+	<select id="readEventLog">
+		SELECT 
+		  ID,
+		  USER_ID,
+		  ITEM_ID,
+		  TYPE,
+		  TIME,
+		  VERSION 
+		FROM
+		  COMPUTING-PLATFORM.T_EVENT_LOG_DATA 
+		LIMIT #{_skiprows}, #{_pagesize}
+	
+	</select>
+
+   
+</mapper>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-3.0.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<bean id="eventLogData" class="com.ifeng.computing.orm.domain.EventLogData" scope="prototype" />
+
+	<batch:job id="reportJob">
+		<batch:step id="step1">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader" writer="mysqlItemWriter"
+					commit-interval="2">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<bean id="cvsFileItemReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+
+		<!-- Read a csv file -->
+		<property name="resource" value="classpath:data/report.csv" />
+
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names" value="userId, itemId, type, time, version" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<!-- return back to reader, rather than a mapped object. -->
+					<!-- <bean class="org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper" 
+						/> -->
+					<!-- map to an object -->
+					<bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="eventLogData" />
+					</bean>
+				</property>
+
+			</bean>
+		</property>
+
+	</bean>
+
+	<bean id="mysqlItemWriter"
+		class="org.springframework.batch.item.database.JdbcBatchItemWriter">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<value>
+            <![CDATA[        
+            	insert into T_EVENT_LOG_DATA(USER_ID, ITEM_ID, TYPE,TIME, VERSION) 
+				VALUES (:userId, :itemId, :type, :time, :version)
+            ]]>
+			</value>
+		</property>
+		<!-- It will take care matching between object property and sql name parameter -->
+		<property name="itemSqlParameterSourceProvider">
+			<bean
+				class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
+		</property>
+	</bean>
+
+
+	<!-- =============== READ JOB =============== -->
+	<bean id="eventLogDataMapper" class="com.ifeng.computing.orm.mybatis.mapper.EventLogDataMapper" />
+	
+	<!-- reader -->
+	<bean id="itemReader"
+		class="org.springframework.batch.item.database.JdbcCursorItemReader"
+		scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql"
+			value="select ID, USER_LOGIN, USER_PASS, AGE from USERS" />
+		<property name="rowMapper">
+			<ref bean="eventLogDataMapper"/>
+		</property>
+	</bean>
+
+	<!--  -->
+	<bean id="pagingItemReader"
+		class="org.springframework.batch.item.database.JdbcPagingItemReader"
+		scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="queryProvider">
+			<bean
+				class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+				<property name="dataSource" ref="dataSource" />
+				<property name="selectClause" value="SELECT ID, USER_ID, ITEM_ID, TYPE,TIME, VERSION" />
+				<property name="fromClause" value="FROM T_EVENT_LOG_DATA" />
+				<property name="whereClause" value="WHERE VERSION=:version" />
+				<property name="sortKey" value="id" />
+			</bean>
+		</property>
+		<property name="parameterValues">
+			<map>
+				<entry key="version" value="#{jobParameters['version']}" />
+			</map>
+		</property>
+		<property name="pageSize" value="10" />
+		<property name="rowMapper">
+			<ref bean="eventLogDataMapper"/>
+		</property>
+	</bean>
+	
+	<!-- writer -->
+	<bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+		<property name="resource" value="file:xml/outputs/users.xml" />
+		<property name="marshaller" ref="userUnmarshaller" />
+		<property name="rootTagName" value="users" />
+	</bean>
+
+	<bean id="userUnmarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+		<property name="aliases">
+			<util:map id="aliases">
+				<entry key="user" value="com.ifeng.computing.orm.domain.EventLogData" />
+			</util:map>
+		</property>
+	</bean>
+
+
+	<!-- <import resource="../config/context.xml" />
+	<import resource="../config/database.xml" />
+
+	<bean id="itemReader"
+		class="org.springframework.batch.item.database.JdbcCursorItemReader"
+		scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql"
+			value="select ID, USER_LOGIN, USER_PASS, AGE from USERS where age > #{jobParameters['age']}" />
+		<property name="rowMapper">
+			<bean class="com.mkyong.UserRowMapper" />
+		</property>
+	</bean>
+
+	<job id="testJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="step1">
+			<tasklet>
+				<chunk reader="pagingItemReader" writer="itemWriter"
+					commit-interval="1" />
+			</tasklet>
+		</step>
+	</job>
+
+	<bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+		<property name="resource" value="file:xml/outputs/users.xml" />
+		<property name="marshaller" ref="userUnmarshaller" />
+		<property name="rootTagName" value="users" />
+	</bean>
+
+	<bean id="userUnmarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+		<property name="aliases">
+			<util:map id="aliases">
+				<entry key="user" value="com.mkyong.User" />
+			</util:map>
+		</property>
+	</bean> -->
+	
+	
+	<!-- =============== Spring-batch MyBatis .. start =============== -->
+
+	<bean id="reader" class="org.mybatis.spring.batch.MyBatisPagingItemReader">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="queryId" value="readEventLog" />
+	</bean>
+	<!-- <bean id="dateBasedCriteriaReader" class="org.mybatis.spring.batch.MyBatisPagingItemReader"
+		p:sqlSessionFactory-ref="batchReadingSessionFactory"
+		p:parameterValues-ref="datesParameters"
+		p:queryId="com.my.name.space.batch.ExampleMapper.queryUserInteractionsOnSpecificTimeSlot"
+		p:pageSize="200" scope="step" /> -->
+
+	<util:map id="datesParameters" key-type="or.joda.time.DateTime" scope="step">
+		<entry key="yesterday" value="#{jobExecutionContext['EXTRACTION_START_DATE']}" />
+		<entry key="today" value="#{jobExecutionContext['TODAY_DATE']}" />
+		<entry key="first_day_of_the_month"
+			value="#{jobExecutionContext['FIRST_DAY_OF_THE_MONTH_DATE']}" />
+		<entry key="first_day_of_the_previous_month"
+			value="#{jobExecutionContext['FIRST_DAY_OF_THE_PREVIOUS_MONTH_DATE']}" />
+	</util:map>
+	<bean id="writer" class="org.mybatis.spring.batch.MyBatisBatchItemWriter">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="statementId" value="com.ifeng.computing.orm.mybatis.mapper.IDataFactoryMapper.createEventLog" />
+	</bean>	
+		
+	
+	<!-- =============== Spring-batch MyBatis .. end =============== -->
+	
+</beans>

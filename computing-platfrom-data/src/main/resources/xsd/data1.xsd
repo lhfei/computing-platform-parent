@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 被2012 () 使用XMLSpy v编辑的 (http://www.altova.com) by -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://data.computing.ifeng.com" targetNamespace="http://data.computing.ifeng.com" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:simpleType name="EventType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="0">
+				<!--下拉推荐-->
+			</xs:enumeration>
+			<xs:enumeration value="1">
+				<!--头条推荐-->
+			</xs:enumeration>
+			<xs:enumeration value="2">
+				<!--编辑推荐-->
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="EventLogData">
+		<xs:annotation>
+			<xs:documentation>用户单次点击行为</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userId" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>用户ID</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="time" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>用户阅读时间时刻</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="itemId">
+					<xs:annotation>
+						<xs:documentation>被点击新闻标识</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="type">
+					<xs:annotation>
+						<xs:documentation>此次点击行为发生的场景，下拉推荐、头条推荐、编辑推荐等</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

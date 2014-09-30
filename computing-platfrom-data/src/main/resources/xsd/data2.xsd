@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 被2012 () 使用XMLSpy v编辑的 (http://www.altova.com) by -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://data.computing.ifeng.com" targetNamespace="http://data.computing.ifeng.com" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="PushLogData">
+		<xs:annotation>
+			<xs:documentation>服务器响应日志</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userId" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>用户ID</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="time" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>热度等级</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="itemList" type="ns1:NewsItem">
+					<xs:annotation>
+						<xs:documentation>推荐新闻条目数</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="NewsItem">
+		<xs:annotation>
+			<xs:documentation>新闻明细</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="itemId" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>用户ID</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="simScore" type="xs:string"/>
+			<xs:element name="hotLevel" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>热度等级</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="category">
+				<xs:annotation>
+					<xs:documentation>推荐内容所属分类</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
