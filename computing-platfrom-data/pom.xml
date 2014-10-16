@@ -15,47 +15,52 @@
   <url>http://maven.apache.org</url>
   <build>
     <finalName>computing-platfrom-data</finalName>
-    <plugins>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.1</version>
-			<configuration>
-				<source>${java.version}</source>
-				<target>${java.version}</target>
-			</configuration>
-		</plugin>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>xmlbeans-maven-plugin</artifactId>
-			<version>2.3.3</version>
-			<executions>
-				<execution>
-					<goals>
-						<goal>xmlbeans</goal>
-					</goals>
-				</execution>
-			</executions>
-			<inherited>true</inherited>
-			<configuration>
-				<memoryInitialSize>50m</memoryInitialSize>
-      				<memoryMaximumSize>80m</memoryMaximumSize>
-				<schemaDirectory>${basedir}/src/main/resources/xsd</schemaDirectory>
-				<outputJar>${basedir}/src/main/webapp/WEB-INF/lib/${project.artifactId}-${project.version}.jar</outputJar>
-			</configuration>
-		</plugin>		 
-    	<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>2.9.1</version>
-			<configuration>
-    			<author>Hefei Li</author>
-    			<charset>${project.build.sourceEncoding}</charset>
-    			<encoding>${project.build.sourceEncoding}</encoding>
-    			<excludePackageNames></excludePackageNames>
-   			</configuration>
-    	</plugin>
-    </plugins>
+    
+    <pluginManagement>
+	    <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xmlbeans-maven-plugin</artifactId>
+				<version>2.3.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>xmlbeans</goal>
+						</goals>
+					</execution>
+				</executions>
+				<inherited>true</inherited>
+				<configuration>
+					<memoryInitialSize>50m</memoryInitialSize>
+	      				<memoryMaximumSize>80m</memoryMaximumSize>
+					<schemaDirectory>${basedir}/src/main/resources/xsd</schemaDirectory>
+					<outputJar>${basedir}/src/main/webapp/WEB-INF/lib/${project.artifactId}-${project.version}.jar</outputJar>
+				</configuration>
+			</plugin>		 
+	    	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+	    			<author>Hefei Li</author>
+	    			<charset>${project.build.sourceEncoding}</charset>
+	    			<encoding>${project.build.sourceEncoding}</encoding>
+	    			<excludePackageNames></excludePackageNames>
+	   			</configuration>
+	    	</plugin>
+	    </plugins>
+    
+    </pluginManagement>
+    
   </build>
   <dependencies>
   	<dependency>
@@ -89,6 +94,11 @@
   		<version>${spring-framework.version}</version>
   	</dependency>
   	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-oxm</artifactId>
+  		<version>${spring-framework.version}</version>
+  	</dependency>  	
+  	<dependency>
   		<groupId>org.springframework.batch</groupId>
   		<artifactId>spring-batch-core</artifactId>
   		<version>3.0.1.RELEASE</version>
@@ -98,11 +108,7 @@
   		<artifactId>mysql-connector-java</artifactId>
   		<version>5.1.32</version>
   	</dependency>
-  	<dependency>
-  		<groupId>org.springframework</groupId>
-  		<artifactId>spring-oxm</artifactId>
-  		<version>${spring-framework.version}</version>
-  	</dependency>
+
   </dependencies>
   <properties>
   	<xmlbeans.version>2.3.0</xmlbeans.version>

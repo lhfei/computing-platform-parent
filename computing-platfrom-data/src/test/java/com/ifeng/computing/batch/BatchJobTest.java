@@ -69,9 +69,34 @@ public class BatchJobTest {
 		
 	}
 	
+	@Test
+	public void createNewsJob() {
+		
+		try {
+			JobExecution execution = jobLauncher.run(createNewsJob, new JobParameters());
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
 	@Autowired
 	private JobLauncher jobLauncher;
 	@Autowired
 	private Job reportJob;
+	
+	@Autowired
+	private Job createNewsJob;
 	
 }
