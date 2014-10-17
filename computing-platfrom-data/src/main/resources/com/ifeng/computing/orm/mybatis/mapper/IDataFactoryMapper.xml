@@ -42,10 +42,35 @@
 		  TIME,
 		  VERSION 
 		FROM
-		  COMPUTING-PLATFORM.T_EVENT_LOG_DATA 
+		  T_EVENT_LOG_DATA 
 		LIMIT #{_skiprows}, #{_pagesize}
 	
 	</select>
+	
+	<select id="readLogData" resultType="logData" parameterType="map">
+		SELECT 
+			P_ID as pId, USER_ID as userId, TIME as time 
+		FROM 
+			t_push_log_data 
+		LIMIT 
+			#{start}, #{limit}
 
-   
+	</select>
+
+	<select id="readNewsByUserId" resultType="newsItem" parameterType="map">
+		SELECT 
+		  n.ID as id,
+		  n.ITEM_ID as itemId,
+		  n.SIM_SCORE as simScore,
+		  n.HOT_LEVEL as hotLevel,
+		  n.CATEGORY as category,
+		  n.P_ID as pId
+		FROM
+		  t_news_item n
+		  
+		WHERE n.ID % #{pId} = 0
+		
+		LIMIT #{start}, #{limit}
+	</select>
+
 </mapper>

@@ -7,8 +7,11 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
     <settings>
         <!-- changes from the defaults -->
        <setting name="lazyLoadingEnabled" value="false" />
+       <setting name="logImpl" value="LOG4J"/>
     </settings>
     <typeAliases>
         <typeAlias type="com.ifeng.computing.orm.domain.EventLogData" alias="eventLogData"/>
+        <typeAlias type="com.ifeng.computing.orm.domain.LogData" alias="logData"/>
+        <typeAlias type="com.ifeng.computing.orm.domain.NewsItem" alias="newsItem"/>
     </typeAliases>
 </configuration>

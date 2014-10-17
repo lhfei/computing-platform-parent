@@ -16,7 +16,12 @@
 
 package com.ifeng.computing.orm.mybatis.mapper;
 
+import java.util.List;
+import java.util.Map;
+
 import com.ifeng.computing.orm.domain.EventLogData;
+import com.ifeng.computing.orm.domain.LogData;
+import com.ifeng.computing.orm.domain.NewsItem;
 
 /**
  * @version 0.1
@@ -27,5 +32,20 @@ import com.ifeng.computing.orm.domain.EventLogData;
  */
 public interface IDataFactoryMapper {
 
+	/**
+	 * @param data
+	 */
 	void createEventLog(EventLogData data);
+	
+	/**
+	 * @param map
+	 * @return
+	 */
+	List<LogData> readLogData(Map<String,Object> map);
+	
+	/**
+	 * @param map
+	 * @return
+	 */
+	List<NewsItem> readNewsByUserId(Map<String,Object> map);
 }

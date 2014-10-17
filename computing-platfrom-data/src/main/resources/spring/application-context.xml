@@ -20,7 +20,8 @@
 	<import resource="classpath*:spring/dataaccess-context.xml"/>
 	<import resource="classpath*:spring/servlet-context.xml"/>
 	
-	<import resource="classpath*:spring/batch/config/launch-context.xml"/>
-	<import resource="classpath*:spring/batch/jobs/job-context.xml"/>
+	<!-- Spring Batch -->
+	<!-- <import resource="classpath*:spring/batch/config/launch-context.xml"/>
+	<import resource="classpath*:spring/batch/jobs/job-context.xml"/> -->
 	
 </beans>

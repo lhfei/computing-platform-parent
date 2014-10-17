@@ -16,12 +16,17 @@
 
 package com.ifeng.computing.service.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ifeng.computing.orm.domain.EventLogData;
+import com.ifeng.computing.orm.domain.LogData;
+import com.ifeng.computing.orm.domain.NewsItem;
 import com.ifeng.computing.orm.mybatis.mapper.IDataFactoryMapper;
 import com.ifeng.computing.service.IDataFactoryService;
 
@@ -51,7 +56,18 @@ public class DataFactoryService implements IDataFactoryService {
 		return result;
 	}
 
+	@Override
+	public List<LogData> readLogData(Map<String, Object> map) {
+		return dataFactoryMapper.readLogData(map);
+	}
+
+	@Override
+	public List<NewsItem> readNewsByUserId(Map<String, Object> map) {
+		return dataFactoryMapper.readNewsByUserId(map);
+	}
 	
 	@Autowired
 	private IDataFactoryMapper dataFactoryMapper;
+
+
 }

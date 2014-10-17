@@ -21,7 +21,7 @@
 		<param name="maxFileSize" value="10240KB"/>
 		<param name="maxBackupIndex" value="5" />
 		<param name="File" value="${catalina.base}/logs/computing-platform-data-debug.log" />
-		<param name="threshold" value="info" />
+		<param name="threshold" value="debug" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ABSOLUTE} %5p %c{1}:%L - %m%n" />
 		</layout>
@@ -61,41 +61,53 @@
 	<logger name="org.springframework.web">
 		<level value="info" />
 	</logger>
+
+	<logger name="org.springframework.test">
+		<level value="info" />
+	</logger>	
+	
 	<logger name="org.hibernate">
 		<level value="error" />
 	</logger>
 	<logger name="org.springframework.beans.factory">
 		<level value="error" />
 	</logger>
-	
-	<logger name="java.sql">
-		<level value="info" /><!-- DEBUG -->
-	</logger>
+
 	<logger name="net.sourceforge.jdbclogger">
 		<level value="info" /><!-- DEBUG -->
 	</logger>
-	<logger name="com.ibatis">
-		<level value="info" /><!-- DEBUG -->
-	</logger>
-	<logger name="com.ibatis.common.jdbc.SimpleDataSource">
+	
+	<logger name="java.sql">
 		<level value="DEBUG" /><!-- DEBUG -->
 	</logger>
-	<logger name="com.ibatis.common.jdbc.ScriptRunner">
-		<level value="info" /><!-- DEBUG -->
+	<logger name="org.mybatis">
+		<level value="INFO" /><!-- DEBUG -->
 	</logger>
-	<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate">
-		<level value="DEBUG" /><!-- DEBUG -->
+	<logger name="org.apache.ibatis">
+		<level value="INFO" />
 	</logger>
 
-	<logger name="org.apache.ibatis">
-		<level value="info" />
+	<logger name="org.springframework.jdbc.core.JdbcTemplate" additivity="false">
+		<level value="DEBUG" />
 	</logger>
+	<logger name="org.springframework.jdbc.core.StatementCreatorUtils" additivity="false">
+		<level value="TRACE" />
+	</logger>
+	
+	<logger name="org.springframework.jdbc.datasource.init">
+		<level value="INFO" />
+	</logger>
+	<logger name="com.mchange.v2">
+		<level value="INFO" />
+	</logger>	
+
+	
 	<!-- Root Logger -->
 	<root>
-		<priority value="info" />
-		<appender-ref ref="STDOUT"/>
+		<priority value="debug" />
 		<appender-ref ref="file"/>
 		<appender-ref ref="debugfile"/>
+		<appender-ref ref="STDOUT"/>
 	</root>
 	
 </log4j:configuration>
