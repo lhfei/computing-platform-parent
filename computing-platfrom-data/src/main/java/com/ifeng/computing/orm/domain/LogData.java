@@ -53,7 +53,6 @@ public class LogData {
 		this.newsItem = newsItem;
 	}
 
-
 	private int pId;
 	private String userId;
 	private String time;

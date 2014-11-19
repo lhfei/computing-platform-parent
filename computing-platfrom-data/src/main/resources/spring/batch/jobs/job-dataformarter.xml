@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<!-- =============== Spring-batch Partition Job .. Start =============== -->
+	
+	<!-- partitioner job -->
+	<batch:job id="partitionReadNewsItemJob" xmlns="http://www.springframework.org/schema/batch">
+
+		<!-- master step, 10 threads (grid-size) -->
+		<batch:step id="masterStep">
+			<batch:partition step="slave" partitioner="rangePartitioner">
+				<batch:handler grid-size="10" task-executor="taskExecutor" />
+			</batch:partition>
+		</batch:step>
+		
+	</batch:job>
+
+	<!-- each thread will run this job, with different stepExecutionContext  values. -->
+	<batch:step id="slave" xmlns="http://www.springframework.org/schema/batch">
+		<tasklet>
+			<chunk reader="pagingItemReader" writer="flatFileItemWriter"
+				processor="itemProcessor" commit-interval="1" />
+		</tasklet>
+	</batch:step>
+
+	<bean id="rangePartitioner" class="com.ifeng.computing.batch.job.partitioner.RangePartitioner" />
+
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+	<!-- inject stepExecutionContext -->
+	<bean id="itemProcessor" class="com.ifeng.computing.batch.job.processor.NewsItemProcessor"
+		scope="step">
+		<property name="threadName" value="#{stepExecutionContext[name]}" />
+	</bean>
+
+	<bean id="pagingItemReader"
+		class="org.springframework.batch.item.database.JdbcPagingItemReader"
+		scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="queryProvider">
+			<bean
+				class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+				<property name="dataSource" ref="dataSource" />
+				<property name="selectClause" value="SELECT ID, ITEM_ID, SIM_SCORE, HOT_LEVEL, CATEGORY, P_ID" />
+				<property name="fromClause" value="FROM T_NEWS_ITEM" />
+				<property name="whereClause" value="where id &gt;= :fromId and id &lt;= :toId" />
+				<property name="sortKey" value="id" />
+			</bean>
+		</property>
+		<!-- Inject via the ExecutionContext in rangePartitioner -->
+		<property name="parameterValues">
+			<map>
+				<entry key="fromId" value="#{stepExecutionContext[fromId]}" />
+				<entry key="toId" value="#{stepExecutionContext[toId]}" />
+			</map>
+		</property>
+		<property name="pageSize" value="100" />
+		<property name="rowMapper">
+			<bean class="com.ifeng.computing.batch.job.mapper.NewsItemRowMapper" />
+		</property>
+	</bean>
+
+	<!-- csv file writer -->
+	<bean id="flatFileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter"
+		scope="step">
+		<property name="resource"
+			value="file:csv/outputs/news.processed#{stepExecutionContext[fromId]}-#{stepExecutionContext[toId]}.csv" />
+		<property name="appendAllowed" value="false" />
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean
+						class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="itemId, simScore, hotLevel, category, pId" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>	
+	
+	<!-- =============== Spring-batch Partition Job .. End =============== -->
+</beans>

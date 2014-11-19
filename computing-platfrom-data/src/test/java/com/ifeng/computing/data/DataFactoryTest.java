@@ -62,9 +62,9 @@ public class DataFactoryTest {
 				
 				ObjectMapper mapper = new ObjectMapper();
 				
-				//mapper.writeValue(new File("src\\test\\VideoModel.json"), doc);
+				mapper.writeValue(new File("src\\test\\VideoModel.json"), doc);
 				
-				pw.append(""+id+" ------- ------------  -------------");
+				//pw.append(""+id+" ------- ------------  -------------");
 				pw.println();
 			}
 			

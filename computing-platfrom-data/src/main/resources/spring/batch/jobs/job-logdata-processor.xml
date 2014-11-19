@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<batch:job id="logDataProcessor">
+		<batch:step id="process">
+			<batch:tasklet>
+				<batch:chunk reader="logData_Reader"
+					writer="logData_FileItemWriter" commit-interval="10">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<bean id="logData_Reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="classpath:data/log-data-mini.json" />
+		<property name="recordSeparatorPolicy" ref="logData_RecordSeparatorPolicy" />
+		<property name="lineMapper" ref="logDataJsonLineMapper" />
+		
+		<property name="skippedLinesCallback" ref="logDataItemWriterLineCallbackHandler"></property>
+	</bean>
+
+	<bean id="logData_RecordSeparatorPolicy"
+		class="org.springframework.batch.item.file.separator.JsonRecordSeparatorPolicy" />
+
+	<bean id="logDataJsonLineMapper" class="com.ifeng.computing.batch.job.mapper.LogDataJsonLineMapper">
+		<property name="delegate">
+			<bean class="org.springframework.batch.item.file.mapping.JsonLineMapper" />
+		</property>
+	</bean>
+	
+	
+	<!-- 
+		org.springframework.batch.item.file.FlatFileItemWriter 
+		com.ifeng.computing.batch.job.writer.TextFlatFileItemWriter
+	-->
+	<bean id="logData_FileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter"
+		scope="step">
+		<property name="resource" value="file:csv/outputs/result.csv" />
+		<property name="appendAllowed" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="pId, userId, time" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+		
+	
+	<bean id="logData_ItemWriter" class="com.ifeng.computing.batch.job.writer.LogDataItemWriter">
+	</bean>
+	
+	<bean id="logDataItemWriterLineCallbackHandler"
+		class="com.ifeng.computing.batch.job.reader.handler.LogDataItemWriterLineCallbackHandler">
+	</bean>
+	
+	<!-- =============== Spring-batch Partition Job with multi-thread .. Start =============== -->
+	<bean id="taskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="5" />
+	</bean>
+	
+	<batch:job id="parallelWriteJob">
+		<batch:split id="readwrite" task-executor="taskExecutor">
+			<batch:flow >
+				<batch:step id="processLogData">
+					<batch:tasklet>
+						<batch:chunk reader="logData_Reader"
+							writer="logData_FileItemWriter" commit-interval="10">
+
+						</batch:chunk>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			
+			<batch:flow >
+				<batch:step id="processNewsItem">
+					<batch:tasklet>
+						<batch:chunk reader="newsItemData_Reader"
+							writer="newsItemData_FileItemWriter" commit-interval="10">
+
+						</batch:chunk>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>			
+		</batch:split>
+	</batch:job>
+
+	<bean id="newsItemData_Reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="classpath:data/log-data-mini.json" />
+		<property name="recordSeparatorPolicy" ref="logData_RecordSeparatorPolicy" />
+		<property name="lineMapper" ref="newsItemJsonLineMapper" />
+		
+		<property name="skippedLinesCallback" ref="logDataItemWriterLineCallbackHandler"></property>
+	</bean>
+
+	<bean id="newsItemJsonLineMapper" class="com.ifeng.computing.batch.job.mapper.NewsItemJsonLineMapper">
+		<property name="delegate">
+			<bean class="org.springframework.batch.item.file.mapping.JsonLineMapper" />
+		</property>
+	</bean>
+	
+	<!-- 
+		org.springframework.batch.item.file.FlatFileItemWriter
+		com.ifeng.computing.batch.job.writer
+	 -->
+	<bean id="newsItemData_FileItemWriter" class="com.ifeng.computing.batch.job.writer.NewsItemFlatFileItemWriter"
+		scope="step">
+		<property name="resource" value="file:csv/outputs/sub-result.csv" />
+		<property name="appendAllowed" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="id,pId, itemId, simScore, hotLevel, category" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<!-- =============== Spring-batch Partition Job with multi-thread .. End =============== -->
+	
+	
+</beans>

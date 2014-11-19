@@ -148,7 +148,7 @@ public class DataFactoryServiceTest {
 					
 					data.setNewsItem(newsList);
 					
-					if(j == 0){
+					if(i == 0 && j == 0){
 						pw.append(mapper.writeValueAsString(data));
 					}else{
 						pw.append(",");
@@ -160,8 +160,8 @@ public class DataFactoryServiceTest {
 					
 				}
 				
-				/*out = new BufferedOutputStream(new FileOutputStream(file, true), BUFFER_SIZE);
-				mapper.writeValue(out, logList);*/
+				out = new BufferedOutputStream(new FileOutputStream(file, true), BUFFER_SIZE);
+				mapper.writeValue(out, logList);
 				
 			}
 			
@@ -190,21 +190,80 @@ public class DataFactoryServiceTest {
 			}
 			
 		}
-		
-		
-		
 	}
 	
+	@Test
+	public void buildPushDataWithNormal() {
 	
+		File file = null;
+		PrintWriter pw = null;
+		
+		try {
+			file = new File("F:/HUGE_FILE_NORMAL.txt");
+			pw = new PrintWriter(file);
+			
+			int start = 0;
+			List<NewsItem> newsList = new ArrayList<NewsItem>();
+			List<LogData> logList = new ArrayList<LogData>();
+			
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("limit", LIMIT_SIZE);
+			
+			int steps = (MAX_USER_SIZE % LIMIT_SIZE == 0) ? (MAX_USER_SIZE / LIMIT_SIZE) : (MAX_USER_SIZE / LIMIT_SIZE + 1);
+					
+			Map<String,Object> newsMap = new HashMap<String,Object>();
+			newsMap.put("start", 0);
+			newsMap.put("limit", NEWS_ITEM_SIZE);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			for (int i = 0; i < steps; i++) {
+				start = i * LIMIT_SIZE;
+				map.put("start", start);
+				
+				log.info("Step {} loading ... , Start index is [{}]", i, start);
+				
+				logList = dataFactoryService.readLogData(map);
+				
+				for(int j=0, length = logList.size(); j<length; j++) {
+					LogData data = logList.get(j);
+					
+					newsMap.put("pId", data.getpId());
+					newsList = dataFactoryService.readNewsByUserId(newsMap);
+					
+					data.setNewsItem(newsList);
+					
+					pw.append(mapper.writeValueAsString(data));
+					pw.println();
+
+					if(j % 50 == 0)
+						pw.flush();
+					
+				}
+			}
+		} catch (JsonGenerationException e) {
+			log.error(e.getMessage(), e);
+		} catch (JsonMappingException e) {
+			log.error(e.getMessage(), e);
+		} catch (FileNotFoundException e) {
+			log.error(e.getMessage(), e);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			if(pw != null){
+				pw.flush();
+				pw.close();
+			}
+		}
+	}	
 	@Autowired
 	private IDataFactoryService dataFactoryService;
 	
 	
 	// PRIVATE FIELDS
 	private static final String DATE_FORMATTER = "yyyyMMddHHmmss";
-	private static final int LIMIT_SIZE = 10;
-	private static final int MAX_USER_SIZE = 3 * 10;
-	private static final int NEWS_ITEM_SIZE = 20;
+	private static final int LIMIT_SIZE = 100;
+	private static final int MAX_USER_SIZE = 500 * 1000;
+	private static final int NEWS_ITEM_SIZE = 10;
 	private static final int BUFFER_SIZE = 1024 * 1024;
 	
 }

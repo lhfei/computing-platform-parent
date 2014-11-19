@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<batch:job id="logDataFormatJob" xmlns="http://www.springframework.org/schema/batch">
+		<batch:step id="readWrite">
+			<batch:tasklet>
+				<batch:chunk reader="logDataReader" writer="logDataItemWriter" commit-interval="100" />
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<bean id="logDataReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+	
+		<!-- <property name="resource" value="classpath:data/log-data.json" /> -->
+		<property name="resource" value="classpath:#{jobParameters['inputFile']}" />
+		
+		<property name="recordSeparatorPolicy" ref="logDataRecordSeparatorPolicy" />
+		<property name="lineMapper" ref="logDataJsonLineMapper" />
+	</bean>
+
+	<bean id="logDataRecordSeparatorPolicy" class="org.springframework.batch.item.file.separator.JsonRecordSeparatorPolicy" />
+
+	<bean id="targetLogDataLineMapper" class="org.springframework.batch.item.file.mapping.JsonLineMapper" />
+		
+	<bean id="logDataJsonLineMapper" class="com.ifeng.computing.batch.job.mapper.LogDataJsonLineMapper">
+		<property name="delegate" ref="targetLogDataLineMapper"></property>
+	</bean>
+	<bean id="logDataItemWriter" class="com.ifeng.computing.batch.job.writer.LogDataItemWriter">
+	</bean>
+</beans>

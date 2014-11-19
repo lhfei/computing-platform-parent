@@ -21,7 +21,14 @@
 	<import resource="classpath*:spring/servlet-context.xml"/>
 	
 	<!-- Spring Batch -->
-	<!-- <import resource="classpath*:spring/batch/config/launch-context.xml"/>
-	<import resource="classpath*:spring/batch/jobs/job-context.xml"/> -->
+	<import resource="classpath*:spring/batch/config/launch-context.xml"/>
+	<import resource="classpath*:spring/batch/jobs/job-context.xml"/>
+	<import resource="classpath*:spring/batch/jobs/job-logdata-format.xml"/>
+	
+	<import resource="classpath*:spring/batch/jobs/job-dataformarter.xml"/>
+	
+	<import resource="classpath*:spring/batch/jobs/job-logdata-processor.xml"/>
+	
+	
 	
 </beans>

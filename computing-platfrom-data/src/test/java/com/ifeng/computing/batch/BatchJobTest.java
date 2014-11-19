@@ -16,6 +16,9 @@
 
 package com.ifeng.computing.batch;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -91,6 +95,125 @@ public class BatchJobTest {
 		
 	}
 	
+	
+	@Test
+	public void logDataFormatJob() {
+		
+		try {
+			JobExecution execution = jobLauncher.run(logDataFormatJob, new JobParameters());
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
+	@Test
+	public void logDataFormatJobWithParameters() {
+		
+		try {
+			Map<String,JobParameter> jobParameters = new HashMap<String,JobParameter>();
+			jobParameters.put("inputFile", new JobParameter("data/log-data.json"));
+			
+			JobExecution execution = jobLauncher.run(logDataFormatJob, new JobParameters(jobParameters));
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
+	@Test
+	public void partitionReadNewsItemJob() {
+		
+		try {
+			
+			JobExecution execution = jobLauncher.run(partitionReadNewsItemJob, new JobParameters());
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
+
+	@Test
+	public void logDataProcessor() {
+		
+		try {
+			
+			JobExecution execution = jobLauncher.run(logDataProcessor, new JobParameters());
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
+	@Test
+	public void parallelWriteJob() {
+		
+		try {
+			
+			JobExecution execution = jobLauncher.run(parallelWriteJob, new JobParameters());
+			
+			log.info(">>>>>>>>>>>>>>> result: " +execution.getStatus());
+			
+			Assert.assertEquals(BatchStatus.COMPLETED, execution.getStatus());
+			
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobRestartException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error(e.getMessage(), e);
+		} catch (JobParametersInvalidException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+	
+	
 	@Autowired
 	private JobLauncher jobLauncher;
 	@Autowired
@@ -98,5 +221,19 @@ public class BatchJobTest {
 	
 	@Autowired
 	private Job createNewsJob;
+	
+	@Autowired
+	private Job logDataFormatJob;
+	
+	@Autowired
+	private Job partitionReadNewsItemJob;
+	
+	@Autowired
+	private Job logDataProcessor;
+	
+	@Autowired
+	private Job parallelWriteJob;
+	
+	
 	
 }

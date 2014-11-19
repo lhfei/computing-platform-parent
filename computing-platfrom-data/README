@@ -1,0 +1,13 @@
+<bean id="flatFileItemReader" scope="step"
+  class="org.springframework.batch.item.file.FlatFileItemReader">
+  <property name="resource" value="#{jobParameters[input.file.name]}" />
+</bean>
+
+<bean id="flatFileItemReader" scope="step"
+  class="org.springframework.batch.item.file.FlatFileItemReader">
+  <property name="resource" value="#{jobExecutionContext[input.file.name]}" />
+</bean>
+
+<batch:chunk reader="#{jobParameters['reader.beanId']}" writer="writer" processor="processor" commit-interval="10" />
+
+http://stackoverflow.com/questions/17181068/spring-batch-one-reader-multiple-writers
